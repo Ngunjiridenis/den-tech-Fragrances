@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Store Name</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f9f9f9; }
+        header { background-color: #4CAF50; color: white; padding: 1rem; text-align: center; }
+        nav { display: flex; justify-content: center; background-color: #333; }
+        nav a { padding: 14px 20px; color: white; text-decoration: none; position: relative; }
+        nav a:hover { background-color: #575757; }
+        .dropdown { position: absolute; left: 0; right: 0; display: none; background-color: #4CAF50; z-index: 1; }
+        .dropdown a { display: block; padding: 10px; }
+        .container { padding: 20px; max-width: 800px; margin: auto; }
+        .product-card { border: 1px solid #ccc; padding: 1rem; margin: 10px; border-radius: 4px; background-color: #fff; }
+        .cart { margin-top: 20px; }
+        .footer { background-color: #333; color: white; text-align: center; padding: 10px 0; }
+        .contacts { margin-top: 20px; background-color: #fff; padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Welcome to Den-tech fragrances</h1>
+    <nav>
+        <a href="#" onmouseover="showProducts()">Products</a>
+        <a href="#cart" onmouseover="toggleCart()">Cart (<span id="cartCount">0</span>)</a>
+        <a href="#contact">Contact</a>
+        <div class="dropdown" id="productDropdown"></div>
+    </nav>
+</header>
+
+<div class="container">
+    <section id="products">
+        <h2>Product Display</h2>
+        <p>Perfumes refilled per ml at sh. 25</p>
+        <div id="productList"></div>
+    </section>
+
+    <section id="cart" class="cart hidden">
+        <h2>Your Cart</h2>
+        <div id="cartSummary"></div>
+        <h3 id="totalPrice">Total Price: sh. 0</h3>
+        <button onclick="downloadOrder()">Download Order (PDF)</button>
+    </section>
+
+    <section id="contact" class="contacts">
+        <h2>Contact Us</h2>
+        <p>Phone: +254 715291248</p>
+        <p>Email: denisnn004@gmail.com</p>
+        <p>Address: 011 Store St, Kitale, Kenya and Lodwar,Turkana Kenya</p>
+    </section>
+</div>
+
+<div class="footer">
+    <p>Den-tech fragrances © 2025</p>
+    <p>Follow us on: </p>
+</div>
+
+<script>
+// Sample product list
+const productList = [
+    { id: 1, name: 'Polo sport', price: 25 },
+    { id: 2, name: 'One Million', price: 25 },
+    { id: 3, name: 'Pink Chiffon', price: 25 },
+    { id: 4, name: 'Baccarat', price: 25 },
+    { id: 5, name: 'Sweet Passion', price: 25 },
+    { id: 6, name: 'Sweet Camilla', price: 25 },
+    { id: 7, name: 'cool waters', price: 25 },
+    { id: 8, name: 'Sugarbaby', price: 25 },
+    { id: 9, name: 'Chelsea', price: 25 },
+    { id: 10, name: 'Pure Seduction', price: 25 },
+    { id: 11, name: '1 man show', price: 25 },
+    { id: 12, name: 'Bad Boy', price: 25 },
+    { id: 13, name: 'James bond', price: 25 },
+    { id: 14, name: 'Lacoste challenge', price: 25 },
+    { id: 15, name: 'Gucci guilty', price: 25 },
+    { id: 16, name: 'versace errors', price: 25 },
+    { id: 17, name: 'Amor amor', price: 25 },
+    { id: 18, name: 'Polo blue', price: 25 },
+    { id: 19, name: 'strawberry', price: 25 },
+    { id: 20, name: 'riri rihanna', price: 25 },
+];
+
+// Initialize cart
+let cart = [];
+
+// Function to display products
+function displayProducts() {
+    const productContainer = document.getElementById('productList');
+    productList.forEach(product => {
+        productContainer.innerHTML += `
+            <div class="product-card">
+                <h3>${product.name}</h3>
+                <input type="number" min="1" id="qty_${product.id}" placeholder="Enter ml" />
+                <button onclick="addToCart(${product.id})">Add to Cart</button>
+            </div>
+        `;
+    });
+}
+
+// Function to show products in dropdown
+function showProducts() {
+    const dropdown = document.getElementById('productDropdown');
+    dropdown.style.display = 'block';
+    dropdown.innerHTML = '<div>Available Products:</div>';
+    productList.forEach(product => {
+        dropdown.innerHTML += `<a href="#" onclick="selectProduct(${product.id})">${product.name}</a>`;
+    });
+}
+
+// Function to hide dropdown
+document.addEventListener('mouseover', (e) => {
+    if (!e.target.closest('nav')) {
+        document.getElementById('productDropdown').style.display = 'none';
+    }
+});
+
+// Function to select product from dropdown
+function selectProduct(productId) {
+    const qtyInput = document.getElementById(`qty_${productId}`);
+    if (qtyInput) {
+        qtyInput.focus();
+        document.getElementById('productDropdown').style.display = 'none';
+    }
+}
+
+// Function to toggle cart display
+function toggleCart() {
+    const cartSection = document.getElementById('cart');
+    cartSection.classList.toggle('hidden');
+}
+
+// Function to add product to cart
+function addToCart(productId) {
+    const quantity = document.getElementById(`qty_${productId}`).value;
+    if (quantity) {
+        const product = productList.find(p => p.id === productId);
+        const cartItem = { ...product, quantity: parseInt(quantity) };
+        cart.push(cartItem);
+        document.getElementById('cartCount').innerText = cart.length;
+        updateCartSummary();
+    } else {
+        alert('Please enter a valid quantity.');
+    }
+}
+
+// Function to update cart summary
+function updateCartSummary() {
+    const cartSummaryContainer = document.getElementById('cartSummary');
+    cartSummaryContainer.innerHTML = '';
+    let total = 0;
+    cart.forEach(item => {
+        cartSummaryContainer.innerHTML += `
+            <div>
+                ${item.name} (ml: ${item.quantity}) - sh. ${item.price * item.quantity}
+                <button onclick="removeFromCart(${item.id})">Remove</button>
+            </div>
+        `;
+        total += item.price * item.quantity;
+    });
+    document.getElementById('totalPrice').innerText = `Total Price: sh. ${total}`;
+}
+
+// Function to remove item from cart
+function removeFromCart(productId) {
+    cart = cart.filter(item => item.id !== productId);
+    document.getElementById('cartCount').innerText = cart.length;
+    updateCartSummary();
+}
+
+// Function to permit PDF download of order summary
+function downloadOrder() {
+    let orderContent = 'Your Order Summary:\n\n';
+    cart.forEach(item => {
+        orderContent += `${item.name} (ml: ${item.quantity}) - sh. ${item.price * item.quantity}\n`;
+    });
+    
+    const blob = new Blob([orderContent], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'order-summary.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+}
+
+// Load products initially
+displayProducts();
+</script>
+
+</body>
+</html>
